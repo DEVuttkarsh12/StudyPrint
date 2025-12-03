@@ -2,6 +2,17 @@ import React from "react";
 import "./landingpage.css";
 
 const LandingPage = () => {
+  const handleStartClick = () => {
+    window.open('https://study-print-app.vercel.app/', '_blank');
+  };
+
+  const handleSeeFeaturesClick = () => {
+    const featuresSection = document.querySelector('.features-section');
+    if (featuresSection) {
+      featuresSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="landing-container">
       {/* Hero Section */}
@@ -16,8 +27,8 @@ const LandingPage = () => {
             Fast, private, and fully offline — no signup required.
           </p>
           <div className="hero-ctas">
-            <button className="btn btn-primary">Start Creating →</button>
-            <button className="btn btn-secondary">See Features</button>
+            <button className="btn btn-primary" onClick={handleStartClick}>Start Creating →</button>
+            <button className="btn btn-secondary" onClick={handleSeeFeaturesClick}>See Features</button>
           </div>
           <p className="hero-small-text">
             100% free. Works offline. No data ever leaves your device.
@@ -98,7 +109,7 @@ const LandingPage = () => {
       <section className="cta-section">
         <h2>Start creating your study sheets now.</h2>
         <p>No signup required — jump straight into the editor.</p>
-        <button className="btn btn-primary btn-large">Start Creating →</button>
+        <button className="btn btn-primary btn-large" onClick={handleStartClick}>Start Creating →</button>
       </section>
 
       {/* About / Privacy / Built By Section */}
