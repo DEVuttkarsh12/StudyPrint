@@ -1,7 +1,35 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./landingpage.css";
 
 const LandingPage = () => {
+  const [submissionStatus, setSubmissionStatus] = useState(null); // null, 'submitting', 'success', 'error'
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmissionStatus('submitting');
+
+    const form = e.target;
+    const data = new FormData(form);
+
+    try {
+      const response = await fetch("https://formspree.io/f/mgvgzezg", {
+        method: "POST",
+        body: data,
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        setSubmissionStatus('success');
+        form.reset();
+      } else {
+        setSubmissionStatus('error');
+      }
+    } catch (error) {
+      setSubmissionStatus('error');
+    }
+  };
   const handleStartClick = () => {
     window.open('https://study-print-app.vercel.app/', '_blank');
   };
@@ -179,45 +207,71 @@ const LandingPage = () => {
           <p>Help us improve StudyPrint — share your ideas or report any issues!</p>
         </div>
         <div className="feedback-container">
-          <form className="feedback-form" action="https://formspree.io/f/xdkogovr" method="POST">
-            <div className="form-group">
-              <input
-                type="text"
-                name="name"
-                placeholder="Your Name"
-                required
-                className="form-input"
-              />
+          {submissionStatus === 'success' ? (
+            <div className="feedback-success">
+              <div className="success-icon">🎉</div>
+              <h3>Thanks for your feedback!</h3>
+              <p>We've received your message and will look into it.</p>
+              <button
+                className="btn btn-secondary"
+                onClick={() => setSubmissionStatus(null)}
+                style={{ marginTop: '1rem' }}
+              >
+                Send another message
+              </button>
             </div>
-            <div className="form-group">
-              <input
-                type="email"
-                name="email"
-                placeholder="Your Email"
-                required
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <select name="type" className="form-select" required>
-                <option value="">Select Type</option>
-                <option value="suggestion">💡 Suggestion</option>
-                <option value="bug">🐛 Bug Report</option>
-                <option value="feature">✨ Feature Request</option>
-                <option value="other">💬 Other</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <textarea
-                name="message"
-                placeholder="Describe your suggestion or the bug you found..."
-                required
-                className="form-textarea"
-                rows="6"
-              ></textarea>
-            </div>
-            <button type="submit" className="btn btn-primary btn-large">Submit Feedback</button>
-          </form>
+          ) : (
+            <form className="feedback-form" onSubmit={handleSubmit}>
+              <div className="form-group">
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Your Name"
+                  required
+                  className="form-input"
+                />
+              </div>
+              <div className="form-group">
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Your Email"
+                  required
+                  className="form-input"
+                />
+              </div>
+              <div className="form-group">
+                <select name="type" className="form-select" required>
+                  <option value="">Select Type</option>
+                  <option value="suggestion">💡 Suggestion</option>
+                  <option value="bug">🐛 Bug Report</option>
+                  <option value="feature">✨ Feature Request</option>
+                  <option value="other">💬 Other</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <textarea
+                  name="message"
+                  placeholder="Describe your suggestion or the bug you found..."
+                  required
+                  className="form-textarea"
+                  rows="6"
+                ></textarea>
+              </div>
+              <button
+                type="submit"
+                className="btn btn-primary btn-large"
+                disabled={submissionStatus === 'submitting'}
+              >
+                {submissionStatus === 'submitting' ? 'Sending...' : 'Submit Feedback'}
+              </button>
+              {submissionStatus === 'error' && (
+                <p style={{ color: '#ef4444', marginTop: '1rem', textAlign: 'center' }}>
+                  Something went wrong. Please try again.
+                </p>
+              )}
+            </form>
+          )}
         </div>
       </section>
 
