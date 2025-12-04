@@ -172,15 +172,64 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Feedback & Bug Report Section */}
+      <section className="feedback-section">
+        <div className="section-header">
+          <h2>Feedback & Bug Reports</h2>
+          <p>Help us improve StudyPrint — share your ideas or report any issues!</p>
+        </div>
+        <div className="feedback-container">
+          <form className="feedback-form" action="https://formspree.io/f/xdkogovr" method="POST">
+            <div className="form-group">
+              <input
+                type="text"
+                name="name"
+                placeholder="Your Name"
+                required
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <input
+                type="email"
+                name="email"
+                placeholder="Your Email"
+                required
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <select name="type" className="form-select" required>
+                <option value="">Select Type</option>
+                <option value="suggestion">💡 Suggestion</option>
+                <option value="bug">🐛 Bug Report</option>
+                <option value="feature">✨ Feature Request</option>
+                <option value="other">💬 Other</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <textarea
+                name="message"
+                placeholder="Describe your suggestion or the bug you found..."
+                required
+                className="form-textarea"
+                rows="6"
+              ></textarea>
+            </div>
+            <button type="submit" className="btn btn-primary btn-large">Submit Feedback</button>
+          </form>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="footer">
         <div className="footer-content">
           <p>© 2025 StudyPrint. All rights reserved.</p>
           <p>Made by Uttkarsh Bhardwaj.</p>
           <div className="footer-links">
-            <a href="#">GitHub</a>
-            <a href="#">Contact</a>
-            <a href="#">Privacy Policy</a>
+            <a href="https://github.com/DEVuttkarsh12/StudyPrint" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="mailto:uttkarshbhardwaj@outlook.com">Contact</a>
+            <a href="#privacy">Privacy Policy</a>
           </div>
           <p className="tagline">"Notes → Clean Study Sheets"</p>
         </div>
