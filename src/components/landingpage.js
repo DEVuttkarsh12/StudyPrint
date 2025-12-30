@@ -1,5 +1,94 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useRef, Suspense } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { PerspectiveCamera } from "@react-three/drei";
+import { motion, useInView } from "framer-motion";
 import "./landingpage.css";
+
+
+
+const FloatingSheet = () => {
+  const mesh = useRef();
+  useFrame((state) => {
+    const t = state.clock.getElapsedTime();
+    mesh.current.rotation.x = Math.sin(t / 2.5) / 12; // Slower, more stable
+    mesh.current.rotation.y = Math.cos(t / 3.5) / 12;
+    mesh.current.position.y = Math.sin(t / 1.5) / 6;
+  });
+
+  return (
+    <mesh ref={mesh} rotation={[0.4, 0, 0]}>
+      <boxGeometry args={[3.8, 5.2, 0.05]} /> {/* Slightly smaller for better fit */}
+      <meshBasicMaterial
+        color="#4f46e5"
+        wireframe={true}
+        transparent={true}
+        opacity={0.12}
+      />
+    </mesh>
+  );
+};
+
+const AnimatedPen = () => {
+  const group = useRef();
+  useFrame((state) => {
+    const t = state.clock.getElapsedTime();
+    // Writing motion: More contained within the sheet
+    group.current.position.x = Math.sin(t * 2.5) * 1.0;
+    group.current.position.z = Math.cos(t * 2) * 0.6 + 0.3;
+    group.current.position.y = Math.sin(t / 1.5) / 6 + 0.6;
+
+    // Tilt the pen naturally
+    group.current.rotation.z = Math.sin(t * 2.5) / 5;
+    group.current.rotation.x = 0.4 + Math.cos(t * 2) / 8;
+  });
+
+  return (
+    <group ref={group} rotation={[0, 0, -0.3]}>
+      {/* Pen Body */}
+      <mesh position={[0, 1.4, 0]}>
+        <cylinderGeometry args={[0.08, 0.08, 2.8, 8]} />
+        <meshBasicMaterial color="#4f46e5" wireframe={true} opacity={0.25} transparent={true} />
+      </mesh>
+      {/* Pen Tip */}
+      <mesh position={[0, -0.05, 0]} rotation={[Math.PI, 0, 0]}>
+        <coneGeometry args={[0.08, 0.25, 8]} />
+        <meshBasicMaterial color="#6366f1" wireframe={true} opacity={0.4} transparent={true} />
+      </mesh>
+    </group>
+  );
+};
+
+const Scene3D = () => {
+  return (
+    <div className="hero-3d-bg">
+      <Canvas alpha={true} camera={{ fov: 45 }}>
+        <PerspectiveCamera makeDefault position={[0, 0, 11]} />
+        <Suspense fallback={null}>
+          <group position={[0.5, 0, 0]}> {/* Shift slightly to avoid hugging the text */}
+            <FloatingSheet />
+            <AnimatedPen />
+          </group>
+        </Suspense>
+      </Canvas>
+    </div>
+  );
+};
+
+const RevealOnScroll = ({ children }) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 30 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+      transition={{ duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] }}
+    >
+      {children}
+    </motion.div>
+  );
+};
 
 const LandingPage = () => {
   const [submissionStatus, setSubmissionStatus] = useState(null); // null, 'submitting', 'success', 'error'
@@ -41,239 +130,225 @@ const LandingPage = () => {
     }
   };
 
-  useEffect(() => {
-    // Intersection Observer for scroll animations
-    const observerOptions = {
-      threshold: 0.1,
-      rootMargin: '0px 0px -100px 0px'
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.style.opacity = '1';
-          entry.target.style.transform = 'translateY(0)';
-        }
-      });
-    }, observerOptions);
-
-    // Observe all sections
-    const sections = document.querySelectorAll('.features-section, .how-it-works-section, .info-section, .feature-card, .step-card, .info-block');
-    sections.forEach((section) => {
-      section.style.opacity = '0';
-      section.style.transform = 'translateY(30px)';
-      section.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
-      observer.observe(section);
-    });
-
-    // Cleanup
-    return () => {
-      sections.forEach((section) => observer.unobserve(section));
-    };
-  }, []);
+  // Replaced manual intersection observer with Framer Motion for better control
 
   return (
     <div className="landing-container">
       {/* Hero Section */}
       <header className="hero-section">
-        <div className="hero-content">
-          <h1 className="hero-headline">
-            Turn your notes into beautiful, printable study sheets — instantly.
-          </h1>
-          <p className="hero-subheadline">
-            StudyPrint helps you convert messy notes into clean, organized A4 study sheets.
-            <br />
-            Fast, private, and fully offline — no signup required.
-          </p>
-          <div className="hero-ctas">
-            <button className="btn btn-primary" onClick={handleStartClick}>Start Creating →</button>
-            <button className="btn btn-secondary" onClick={handleSeeFeaturesClick}>See Features</button>
-          </div>
-          <p className="hero-small-text">
-            100% free. Works offline. No data ever leaves your device.
-          </p>
-        </div>
-        <div className="hero-mockup">
-          <div className="mockup-placeholder">
-            <p>A clean, distraction-free interface built for students who want focus — not clutter.</p>
-          </div>
+        <div className="hero-container">
+          <motion.div
+            className="hero-content"
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <h1 className="hero-headline">
+              Turn your notes into beautiful, printable study sheets — instantly.
+            </h1>
+            <p className="hero-subheadline">
+              StudyPrint helps you convert messy notes into clean, structured A4 study sheets.
+              <br />
+              Fast, private, and fully offline — no signup required.
+            </p>
+            <div className="hero-ctas">
+              <button className="btn btn-primary" onClick={handleStartClick}>Start Creating →</button>
+              <button className="btn btn-secondary" onClick={handleSeeFeaturesClick}>See Features</button>
+            </div>
+            <p className="hero-small-text">
+              100% free. Works offline. No data ever leaves your device.
+            </p>
+          </motion.div>
+          <motion.div
+            className="hero-3d-wrapper"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            whileHover={{ scale: 1.05 }}
+            transition={{ duration: 1, delay: 0.2 }}
+          >
+            <Scene3D />
+          </motion.div>
         </div>
       </header>
 
       {/* Features Section */}
-      <section className="features-section">
-        <div className="section-header">
-          <h2>Features</h2>
-          <p>Built for students — simple, fast, and private.</p>
-        </div>
-        <div className="features-grid">
-          <div className="feature-card">
-            <h3>🧠 Offline First</h3>
-            <p>Everything works directly in your browser.</p>
-            <p>Your notes never leave your device — perfect for privacy and low-internet days.</p>
+      <RevealOnScroll>
+        <section className="features-section">
+          <div className="section-header">
+            <h2>Everything you need.</h2>
+            <p>Simple tools designed for the way you study.</p>
           </div>
-          <div className="feature-card">
-            <h3>📝 Printable A4 PDFs</h3>
-            <p>Export clean, print-ready A4 study sheets with perfect spacing, margins, and structure.</p>
+          <div className="features-grid">
+            <div className="feature-card">
+              <h3>Offline Ready</h3>
+              <p>Your notes never leave your device. Work anywhere, anytime, with total privacy.</p>
+            </div>
+            <div className="feature-card">
+              <h3>Printable A4 PDFs</h3>
+              <p>Export clean, structured study sheets with perfect margins and spacing automatically.</p>
+            </div>
+            <div className="feature-card">
+              <h3>Auto-Save</h3>
+              <p>Focus on your content. Your progress is saved locally as you type.</p>
+            </div>
+            <div className="feature-card">
+              <h3>Layout Control</h3>
+              <p>Easily adjust fonts and spacing to create a study sheet that works for you.</p>
+            </div>
+            <div className="feature-card">
+              <h3>Minimal Interface</h3>
+              <p>No distractions. No ads. Just a pure workspace for your thoughts.</p>
+            </div>
+            <div className="feature-card">
+              <h3>Zero Setup</h3>
+              <p>No accounts required. Start creating instantly, directly in your browser.</p>
+            </div>
           </div>
-          <div className="feature-card">
-            <h3>💾 Auto-Save</h3>
-            <p>Your notes save automatically in local storage — even if you close the tab.</p>
-          </div>
-          <div className="feature-card">
-            <h3>🔗 Shareable Links</h3>
-            <p>Turn your study sheet into a link and share it with classmates in one click.</p>
-          </div>
-          <div className="feature-card">
-            <h3>🎨 Layout Controls</h3>
-            <p>Adjust spacing, font size, columns, and structure to match your study style.</p>
-          </div>
-          <div className="feature-card">
-            <h3>📄 Clean Minimal UI</h3>
-            <p>No clutter, no ads, no distractions — a workspace built purely for studying.</p>
-          </div>
-          <div className="feature-card">
-            <h3>🕒 Zero Setup</h3>
-            <p>Just open the tool and start typing.</p>
-            <p>No account. No friction. Just pure productivity.</p>
-          </div>
-        </div>
-      </section>
+        </section>
+      </RevealOnScroll>
 
       {/* How It Works Section */}
-      <section className="how-it-works-section">
-        <div className="section-header">
-          <h2>How It Works</h2>
-        </div>
-        <div className="steps-grid">
-          <div className="step-card">
-            <div className="step-number">1</div>
-            <h3>Paste your notes</h3>
-            <p>Copy from anywhere — school notes, Google Docs, Notion, or your handwritten summaries.</p>
+      <RevealOnScroll>
+        <section className="how-it-works-section">
+          <div className="section-header">
+            <h2>How It Works</h2>
           </div>
-          <div className="step-card">
-            <div className="step-number">2</div>
-            <h3>Customize the layout</h3>
-            <p>Change spacing, font, columns, and structure in seconds.</p>
+          <div className="steps-grid">
+            <div className="step-card">
+              <div className="step-number">1</div>
+              <h3>Paste your notes</h3>
+              <p>Copy from anywhere — school notes, Google Docs, Notion, or your handwritten summaries.</p>
+            </div>
+            <div className="step-card">
+              <div className="step-number">2</div>
+              <h3>Customize the layout</h3>
+              <p>Change spacing, font, columns, and structure in seconds.</p>
+            </div>
+            <div className="step-card">
+              <div className="step-number">3</div>
+              <h3>Export to PDF</h3>
+              <p>One-click export to a crisp, print-ready A4 sheet.</p>
+            </div>
           </div>
-          <div className="step-card">
-            <div className="step-number">3</div>
-            <h3>Export to PDF</h3>
-            <p>One-click export to a crisp, print-ready A4 sheet.</p>
-          </div>
-        </div>
-      </section>
+        </section>
+      </RevealOnScroll>
 
       {/* CTA Section */}
-      <section className="cta-section">
-        <h2>Start creating your study sheets now.</h2>
-        <p>No signup required — jump straight into the editor.</p>
-        <button className="btn btn-primary btn-large" onClick={handleStartClick}>Start Creating →</button>
-      </section>
+      <RevealOnScroll>
+        <section className="cta-section">
+          <h2>Start creating your study sheets now.</h2>
+          <p>No signup required — jump straight into the editor.</p>
+          <button className="btn btn-primary btn-large" onClick={handleStartClick}>Start Creating →</button>
+        </section>
+      </RevealOnScroll>
 
       {/* About / Privacy / Built By Section */}
-      <section className="info-section">
-        <div className="info-grid">
-          <div className="info-block">
-            <h3>🧩 About StudyPrint</h3>
-            <p>StudyPrint is a free, student-focused tool created to make revision easier.</p>
-            <p>Designed for speed, privacy, and simplicity — everything works offline and stays on your device.</p>
-            <p>Built for students who prefer clean, printable study material without distractions.</p>
+      <RevealOnScroll>
+        <section className="info-section">
+          <div className="info-grid">
+            <div className="info-block">
+              <h3>🧩 About StudyPrint</h3>
+              <p>StudyPrint is a free, student-focused tool created to make revision easier.</p>
+              <p>Designed for speed, privacy, and simplicity — everything works offline and stays on your device.</p>
+              <p>Built for students who prefer clean, printable study material without distractions.</p>
+            </div>
+            <div className="info-block">
+              <h3>🔐 Privacy</h3>
+              <p>Your data stays with you.</p>
+              <p>StudyPrint uses zero databases, accounts, or cloud services.</p>
+              <p>Everything is stored locally in your browser.</p>
+              <ul className="privacy-list">
+                <li>No tracking.</li>
+                <li>No analytics.</li>
+                <li>No accounts.</li>
+                <li>Just privacy.</li>
+              </ul>
+            </div>
+            <div className="info-block">
+              <h3>🧒 Built By</h3>
+              <p>Made by Uttkarsh Bhardwaj</p>
+              <p>A 15-year-old frontend dev passionate about building simple, useful tools for students.</p>
+            </div>
           </div>
-          <div className="info-block">
-            <h3>🔐 Privacy</h3>
-            <p>Your data stays with you.</p>
-            <p>StudyPrint uses zero databases, accounts, or cloud services.</p>
-            <p>Everything is stored locally in your browser.</p>
-            <ul className="privacy-list">
-              <li>No tracking.</li>
-              <li>No analytics.</li>
-              <li>No accounts.</li>
-              <li>Just privacy.</li>
-            </ul>
-          </div>
-          <div className="info-block">
-            <h3>🧒 Built By</h3>
-            <p>Made by Uttkarsh Bhardwaj</p>
-            <p>A 15-year-old frontend dev passionate about building simple, useful tools for students.</p>
-          </div>
-        </div>
-      </section>
+        </section>
+      </RevealOnScroll>
 
       {/* Feedback & Bug Report Section */}
-      <section className="feedback-section">
-        <div className="section-header">
-          <h2>Feedback & Bug Reports</h2>
-          <p>Help us improve StudyPrint — share your ideas or report any issues!</p>
-        </div>
-        <div className="feedback-container">
-          {submissionStatus === 'success' ? (
-            <div className="feedback-success">
-              <div className="success-icon">🎉</div>
-              <h3>Thanks for your feedback!</h3>
-              <p>We've received your message and will look into it.</p>
-              <button
-                className="btn btn-secondary"
-                onClick={() => setSubmissionStatus(null)}
-                style={{ marginTop: '1rem' }}
-              >
-                Send another message
-              </button>
-            </div>
-          ) : (
-            <form className="feedback-form" onSubmit={handleSubmit}>
-              <div className="form-group">
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="Your Name"
-                  required
-                  className="form-input"
-                />
+      <RevealOnScroll>
+        <section className="feedback-section">
+          <div className="section-header">
+            <h2>Feedback & Bug Reports</h2>
+            <p>Help us improve StudyPrint — share your ideas or report any issues!</p>
+          </div>
+          <div className="feedback-container">
+            {submissionStatus === 'success' ? (
+              <div className="feedback-success">
+                <div className="success-icon">🎉</div>
+                <h3>Thanks for your feedback!</h3>
+                <p>We've received your message and will look into it.</p>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setSubmissionStatus(null)}
+                  style={{ marginTop: '1rem' }}
+                >
+                  Send another message
+                </button>
               </div>
-              <div className="form-group">
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Your Email"
-                  required
-                  className="form-input"
-                />
-              </div>
-              <div className="form-group">
-                <select name="type" className="form-select" required>
-                  <option value="">Select Type</option>
-                  <option value="suggestion">💡 Suggestion</option>
-                  <option value="bug">🐛 Bug Report</option>
-                  <option value="feature">✨ Feature Request</option>
-                  <option value="other">💬 Other</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <textarea
-                  name="message"
-                  placeholder="Describe your suggestion or the bug you found..."
-                  required
-                  className="form-textarea"
-                  rows="6"
-                ></textarea>
-              </div>
-              <button
-                type="submit"
-                className="btn btn-primary btn-large"
-                disabled={submissionStatus === 'submitting'}
-              >
-                {submissionStatus === 'submitting' ? 'Sending...' : 'Submit Feedback'}
-              </button>
-              {submissionStatus === 'error' && (
-                <p style={{ color: '#ef4444', marginTop: '1rem', textAlign: 'center' }}>
-                  Something went wrong. Please try again.
-                </p>
-              )}
-            </form>
-          )}
-        </div>
-      </section>
+            ) : (
+              <form className="feedback-form" onSubmit={handleSubmit}>
+                <div className="form-group">
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="Your Name"
+                    required
+                    className="form-input"
+                  />
+                </div>
+                <div className="form-group">
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Your Email"
+                    required
+                    className="form-input"
+                  />
+                </div>
+                <div className="form-group">
+                  <select name="type" className="form-select" required>
+                    <option value="">Select Type</option>
+                    <option value="suggestion">💡 Suggestion</option>
+                    <option value="bug">🐛 Bug Report</option>
+                    <option value="feature">✨ Feature Request</option>
+                    <option value="other">💬 Other</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <textarea
+                    name="message"
+                    placeholder="Describe your suggestion or the bug you found..."
+                    required
+                    className="form-textarea"
+                    rows="6"
+                  ></textarea>
+                </div>
+                <button
+                  type="submit"
+                  className="btn btn-primary btn-large"
+                  disabled={submissionStatus === 'submitting'}
+                >
+                  {submissionStatus === 'submitting' ? 'Sending...' : 'Submit Feedback'}
+                </button>
+                {submissionStatus === 'error' && (
+                  <p style={{ color: '#ef4444', marginTop: '1rem', textAlign: 'center' }}>
+                    Something went wrong. Please try again.
+                  </p>
+                )}
+              </form>
+            )}
+          </div>
+        </section>
+      </RevealOnScroll>
 
       {/* Footer */}
       <footer className="footer">
