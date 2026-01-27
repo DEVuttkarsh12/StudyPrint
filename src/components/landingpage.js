@@ -4,76 +4,6 @@ import { PerspectiveCamera } from "@react-three/drei";
 import { motion, useInView } from "framer-motion";
 import "./landingpage.css";
 
-
-
-const FloatingSheet = () => {
-  const mesh = useRef();
-  useFrame((state) => {
-    const t = state.clock.getElapsedTime();
-    mesh.current.rotation.x = Math.sin(t / 2.5) / 12; // Slower, more stable
-    mesh.current.rotation.y = Math.cos(t / 3.5) / 12;
-    mesh.current.position.y = Math.sin(t / 1.5) / 6;
-  });
-
-  return (
-    <mesh ref={mesh} rotation={[0.4, 0, 0]}>
-      <boxGeometry args={[3.8, 5.2, 0.05]} /> {/* Slightly smaller for better fit */}
-      <meshBasicMaterial
-        color="#4f46e5"
-        wireframe={true}
-        transparent={true}
-        opacity={0.12}
-      />
-    </mesh>
-  );
-};
-
-const AnimatedPen = () => {
-  const group = useRef();
-  useFrame((state) => {
-    const t = state.clock.getElapsedTime();
-    // Writing motion: More contained within the sheet
-    group.current.position.x = Math.sin(t * 2.5) * 1.0;
-    group.current.position.z = Math.cos(t * 2) * 0.6 + 0.3;
-    group.current.position.y = Math.sin(t / 1.5) / 6 + 0.6;
-
-    // Tilt the pen naturally
-    group.current.rotation.z = Math.sin(t * 2.5) / 5;
-    group.current.rotation.x = 0.4 + Math.cos(t * 2) / 8;
-  });
-
-  return (
-    <group ref={group} rotation={[0, 0, -0.3]}>
-      {/* Pen Body */}
-      <mesh position={[0, 1.4, 0]}>
-        <cylinderGeometry args={[0.08, 0.08, 2.8, 8]} />
-        <meshBasicMaterial color="#4f46e5" wireframe={true} opacity={0.25} transparent={true} />
-      </mesh>
-      {/* Pen Tip */}
-      <mesh position={[0, -0.05, 0]} rotation={[Math.PI, 0, 0]}>
-        <coneGeometry args={[0.08, 0.25, 8]} />
-        <meshBasicMaterial color="#6366f1" wireframe={true} opacity={0.4} transparent={true} />
-      </mesh>
-    </group>
-  );
-};
-
-const Scene3D = () => {
-  return (
-    <div className="hero-3d-bg">
-      <Canvas alpha={true} camera={{ fov: 45 }}>
-        <PerspectiveCamera makeDefault position={[0, 0, 11]} />
-        <Suspense fallback={null}>
-          <group position={[0.5, 0, 0]}> {/* Shift slightly to avoid hugging the text */}
-            <FloatingSheet />
-            <AnimatedPen />
-          </group>
-        </Suspense>
-      </Canvas>
-    </div>
-  );
-};
-
 const RevealOnScroll = ({ children }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
@@ -130,8 +60,6 @@ const LandingPage = () => {
     }
   };
 
-  // Replaced manual intersection observer with Framer Motion for better control
-
   return (
     <div className="landing-container">
       {/* Hero Section */}
@@ -158,15 +86,6 @@ const LandingPage = () => {
             <p className="hero-small-text">
               100% free. Works offline. No data ever leaves your device.
             </p>
-          </motion.div>
-          <motion.div
-            className="hero-3d-wrapper"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 1, delay: 0.2 }}
-          >
-            <Scene3D />
           </motion.div>
         </div>
       </header>
