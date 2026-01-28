@@ -67,25 +67,22 @@ const LandingPage = () => {
         <div className="hero-container">
           <motion.div
             className="hero-content"
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: [0.21, 0.47, 0.32, 0.98] }}
           >
+            <div className="hero-badge">A space for focus</div>
             <h1 className="hero-headline">
-              Turn your notes into beautiful, printable study sheets — instantly.
+              From messy notes to <br /><em>elegant study sheets.</em>
             </h1>
             <p className="hero-subheadline">
-              StudyPrint helps you convert messy notes into clean, structured A4 study sheets.
-              <br />
-              Fast, private, and fully offline — no signup required.
+              Transform your scattered thoughts into structured, print-ready A4 guides.
+              Private, offline, and beautifully simple.
             </p>
             <div className="hero-ctas">
-              <button className="btn btn-primary" onClick={handleStartClick}>Start Creating →</button>
-              <button className="btn btn-secondary" onClick={handleSeeFeaturesClick}>See Features</button>
+              <button className="btn btn-primary" onClick={handleStartClick}>Enter the Workspace</button>
+              <button className="btn btn-secondary" onClick={handleSeeFeaturesClick}>Learn More</button>
             </div>
-            <p className="hero-small-text">
-              100% free. Works offline. No data ever leaves your device.
-            </p>
           </motion.div>
         </div>
       </header>
@@ -94,33 +91,24 @@ const LandingPage = () => {
       <RevealOnScroll>
         <section className="features-section">
           <div className="section-header">
-            <h2>Everything you need.</h2>
-            <p>Simple tools designed for the way you study.</p>
+            <h2>Thoughtful features.</h2>
+            <p>Everything you need, nothing you don't.</p>
           </div>
           <div className="features-grid">
             <div className="feature-card">
-              <h3>Offline Ready</h3>
-              <p>Your notes never leave your device. Work anywhere, anytime, with total privacy.</p>
+              <div className="feature-icon">☁️</div>
+              <h3>Offline First</h3>
+              <p>Your data never leaves your device. Total privacy for your most personal notes.</p>
             </div>
             <div className="feature-card">
-              <h3>Printable A4 PDFs</h3>
-              <p>Export clean, structured study sheets with perfect margins and spacing automatically.</p>
+              <div className="feature-icon">📄</div>
+              <h3>Perfect Layouts</h3>
+              <p> Crisp A4 PDFs with balanced margins and refined typography, every single time.</p>
             </div>
             <div className="feature-card">
-              <h3>Auto-Save</h3>
-              <p>Focus on your content. Your progress is saved locally as you type.</p>
-            </div>
-            <div className="feature-card">
-              <h3>Layout Control</h3>
-              <p>Easily adjust fonts and spacing to create a study sheet that works for you.</p>
-            </div>
-            <div className="feature-card">
-              <h3>Minimal Interface</h3>
-              <p>No distractions. No ads. Just a pure workspace for your thoughts.</p>
-            </div>
-            <div className="feature-card">
-              <h3>Zero Setup</h3>
-              <p>No accounts required. Start creating instantly, directly in your browser.</p>
+              <div className="feature-icon">✨</div>
+              <h3>Zero Friction</h3>
+              <p>No accounts or signups. Just open the app and start creating immediately.</p>
             </div>
           </div>
         </section>
@@ -130,23 +118,29 @@ const LandingPage = () => {
       <RevealOnScroll>
         <section className="how-it-works-section">
           <div className="section-header">
-            <h2>How It Works</h2>
+            <h2>The Process</h2>
           </div>
-          <div className="steps-grid">
-            <div className="step-card">
-              <div className="step-number">1</div>
-              <h3>Paste your notes</h3>
-              <p>Copy from anywhere — school notes, Google Docs, Notion, or your handwritten summaries.</p>
+          <div className="steps-container">
+            <div className="step-item">
+              <span className="step-num">01</span>
+              <div className="step-info">
+                <h3>Draft your notes</h3>
+                <p>Paste text from any source — your lecture notes, summaries, or quick thoughts.</p>
+              </div>
             </div>
-            <div className="step-card">
-              <div className="step-number">2</div>
-              <h3>Customize the layout</h3>
-              <p>Change spacing, font, columns, and structure in seconds.</p>
+            <div className="step-item">
+              <span className="step-num">02</span>
+              <div className="step-info">
+                <h3>Refine the look</h3>
+                <p>Adjust spacing and typography to suit your studying style with subtle controls.</p>
+              </div>
             </div>
-            <div className="step-card">
-              <div className="step-number">3</div>
-              <h3>Export to PDF</h3>
-              <p>One-click export to a crisp, print-ready A4 sheet.</p>
+            <div className="step-item">
+              <span className="step-num">03</span>
+              <div className="step-info">
+                <h3>Print and focus</h3>
+                <p>Export to a high-quality PDF ready for your desk or binder.</p>
+              </div>
             </div>
           </div>
         </section>
@@ -155,9 +149,11 @@ const LandingPage = () => {
       {/* CTA Section */}
       <RevealOnScroll>
         <section className="cta-section">
-          <h2>Start creating your study sheets now.</h2>
-          <p>No signup required — jump straight into the editor.</p>
-          <button className="btn btn-primary btn-large" onClick={handleStartClick}>Start Creating →</button>
+          <div className="cta-inner">
+            <h2>Ready to start?</h2>
+            <p>Join students who value clarity and focused revision.</p>
+            <button className="btn btn-primary" onClick={handleStartClick}>Launch StudyPrint</button>
+          </div>
         </section>
       </RevealOnScroll>
 
